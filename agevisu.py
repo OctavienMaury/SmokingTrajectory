@@ -14,10 +14,10 @@ import streamlit.components.v1 as components
 import torchviz
 
 # Récupérer les secrets depuis Streamlit
-db_host = st.secrets["DB_HOST"]
-db_user = st.secrets["DB_USER"]
-db_password = st.secrets["DB_PASSWORD"]
-db_name = st.secrets["DB_NAME"]
+db_host = st.secrets["DB_HOST"]  # L'adresse de votre hôte, par exemple 'localhost' ou une adresse IP
+db_user = st.secrets["DB_USER"]  # Votre nom d'utilisateur PostgreSQL
+db_password = st.secrets["DB_PASSWORD"]  # Votre mot de passe PostgreSQL
+db_name = st.secrets["DB_NAME"]  # Le nom de votre base de données
 
 # Connexion à PostgreSQL
 def connect_to_db():
@@ -26,9 +26,25 @@ def connect_to_db():
 
 # Charger les données depuis PostgreSQL
 def load_data_from_db(engine):
-    query = "SELECT * FROM data_test2_cleaned3"
-    data = pd.read_sql(query, engine)
-    return data
+    if engine is None:
+        st.error("Impossible de se connecter à la base de données. Veuillez vérifier vos paramètres de connexion.")
+        return pd.DataFrame()  # Retourne un DataFrame vide pour éviter des erreurs ultérieures.
+    try:
+        query = "SELECT * FROM data_test2_cleaned3"
+        data = pd.read_sql(query, engine)
+        return data
+    except Exception as e:
+        st.error(f"Erreur lors du chargement des données: {e}")
+        return pd.DataFrame()  # Retourne un DataFrame vide pour éviter des erreurs ultérieures.
+
+# Interface Streamlit
+st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
+
+engine = connect_to_db()
+data = load_data_from_db(engine)
+
+if data.empty:
+    st.stop() 
 
 # Interface Streamlit
 st.title("Modèle de Prédiction de Tabagisme")
