@@ -3,7 +3,7 @@ numpy
 torch
 scikit-learn
 shap
-matplotlib.pyplot 
+matplotlib
 streamlit 
 torchviz
 sqlalchemy
