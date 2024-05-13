@@ -1,8 +1,7 @@
 pandas 
 numpy 
 torch
-sklearn
-sklearn.preprocessing 
+scikit-learn
 shap
 matplotlib.pyplot 
 streamlit 
