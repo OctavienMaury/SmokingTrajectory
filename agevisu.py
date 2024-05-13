@@ -1,6 +1,8 @@
 # The most comprehensive model predicts whether the individual smokes or not, as well as their age of smoking initiation and cessation.
+import streamlit as st
 import pandas as pd
-import numpy as np
+from sqlalchemy import create_engine
+import os
 import torch
 from torch.utils.data import Dataset, DataLoader, random_split
 from torch import nn, optim
@@ -8,21 +10,14 @@ from sklearn.preprocessing import OneHotEncoder
 import shap
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, mean_absolute_error
-import streamlit as st
 import streamlit.components.v1 as components
 import torchviz
-from sqlalchemy import create_engine
-from dotenv import load_dotenv
-import os
 
-# Charger les variables d'environnement
-load_dotenv()
-
-# Récupérer les variables d'environnement
-db_host = os.getenv('DB_HOST')
-db_user = os.getenv('DB_USER')
-db_password = os.getenv('DB_PASSWORD')
-db_name = os.getenv('DB_NAME')
+# Récupérer les secrets depuis Streamlit
+db_host = st.secrets["DB_HOST"]
+db_user = st.secrets["DB_USER"]
+db_password = st.secrets["DB_PASSWORD"]
+db_name = st.secrets["DB_NAME"]
 
 # Connexion à PostgreSQL
 def connect_to_db():
@@ -31,7 +26,7 @@ def connect_to_db():
 
 # Charger les données depuis PostgreSQL
 def load_data_from_db(engine):
-    query = "SELECT * FROM data_test2_cleaned3"  # Remplacez 'data_test2_cleaned3' par le nom de votre table
+    query = "SELECT * FROM data_test2_cleaned3"
     data = pd.read_sql(query, engine)
     return data
 
@@ -42,7 +37,7 @@ st.title("Modèle de Prédiction de Tabagisme")
 engine = connect_to_db()
 data = load_data_from_db(engine)
 
-# Preprocessing des données
+# Prétraitement des données
 data['age_init'] = data.apply(lambda row: row['age'] - row['nbanfum'] if row['afume'] == 1 else np.nan, axis=1)
 data['age_cess'] = data.apply(lambda row: row['age'] - row['nbanfum'] if row['aarret'] > 0 else np.nan, axis=1)
 
