@@ -31,7 +31,7 @@ def connect_to_db():
 
 # Charger les données depuis PostgreSQL
 def load_data_from_db(engine):
-    query = "SELECT * FROM your_table_name"  # Remplacez 'your_table_name' par le nom de votre table
+    query = "SELECT * FROM data_test2_cleaned3"  # Remplacez 'data_test2_cleaned3' par le nom de votre table
     data = pd.read_sql(query, engine)
     return data
 
