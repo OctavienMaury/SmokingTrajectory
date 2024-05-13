@@ -11,19 +11,45 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 import streamlit as st
 import streamlit.components.v1 as components
 import torchviz
+from sqlalchemy import create_engine
+from dotenv import load_dotenv
+import os
 
+# Charger les variables d'environnement
+load_dotenv()
 
-data = pd.read_csv('PATH\data.csv')
+# Récupérer les variables d'environnement
+db_host = os.getenv('DB_HOST')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+db_name = os.getenv('DB_NAME')
 
-# Create the variables'age_init' et 'age_cess'
+# Connexion à PostgreSQL
+def connect_to_db():
+    engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}')
+    return engine
+
+# Charger les données depuis PostgreSQL
+def load_data_from_db(engine):
+    query = "SELECT * FROM your_table_name"  # Remplacez 'your_table_name' par le nom de votre table
+    data = pd.read_sql(query, engine)
+    return data
+
+# Interface Streamlit
+st.title("Modèle de Prédiction de Tabagisme")
+
+# Connexion à la base de données et chargement des données
+engine = connect_to_db()
+data = load_data_from_db(engine)
+
+# Preprocessing des données
 data['age_init'] = data.apply(lambda row: row['age'] - row['nbanfum'] if row['afume'] == 1 else np.nan, axis=1)
 data['age_cess'] = data.apply(lambda row: row['age'] - row['nbanfum'] if row['aarret'] > 0 else np.nan, axis=1)
-
 
 data['sexe'] = data['sexe'].astype('category').cat.codes
 columns_to_drop = ['ben_n4', 'nind', 'pond_pers_total']
 
-#  One-Hot Encoding
+# One-Hot Encoding
 encoder = OneHotEncoder(drop='first')
 columns_to_encode = ['mere_pcs', 'pere_pcs', 'mere_etude', 'pere_etude']
 
@@ -37,9 +63,7 @@ data = pd.concat([data, encoded_df], axis=1)
 # Update columns
 columns_to_use = [col for col in data.columns if col not in ['fume', 'age_init', 'age_cess', 'afume', 'nbanfum', 'aarret']]
 
-
 data = data.dropna(subset=['age_init', 'age_cess'])
-
 
 age_init_mean = data['age_init'].mean()
 age_init_std = data['age_init'].std()
@@ -51,18 +75,14 @@ data['age_cess'] = (data['age_cess'] - age_cess_mean) / age_cess_std
 
 # Conversion des données en tenseurs pour PyTorch
 X = torch.tensor(data[columns_to_use].values.astype(np.float32))
-
-
 y_fume = torch.tensor((data['fume'] > 2).astype(np.float32).values).unsqueeze(1)
 y_age_init = torch.tensor(data['age_init'].values.astype(np.float32)).unsqueeze(1)
 y_age_cess = torch.tensor(data['age_cess'].values.astype(np.float32)).unsqueeze(1)
-
 
 mean = X.mean(0, keepdim=True)
 std = X.std(0, keepdim=True)
 std[std == 0] = 1
 X = (X - mean) / std
-
 
 class Donnees(Dataset):
     def __init__(self, features, labels):
@@ -231,13 +251,12 @@ with torch.no_grad():
         all_predictions_age_init.extend(predictions_age_init.tolist())
         all_predictions_age_cess.extend(predictions_age_cess.tolist())
 
-
 data['predicted_fume'] = [item[0] for item in all_predictions_fume]
 data['predicted_age_init'] = [item[0] for item in all_predictions_age_init]
 data['predicted_age_cess'] = [item[0] for item in all_predictions_age_cess]
 
-# save predicted data
-data.to_csv('PATH\predicted_data.csv', index=False)
+# Save predicted data
+data.to_csv('predicted_data.csv', index=False)
 
 print("Les prédictions ont été sauvegardées avec succès.")
 
@@ -252,7 +271,6 @@ class ModelWrapper:
             return self.model(x_tensor).detach().numpy().flatten()
 
 X_np = X.numpy()
-
 
 models = {
     "model_fume": model_fume,
@@ -308,7 +326,7 @@ for model_name, model in models.items():
         shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
         st.pyplot(fig_dependence)
 
-#  SHAP KEY VARIABLES
+# SHAP KEY VARIABLES
 mere_pcs_vars = [f'mere_pcs_{i}' for i in range(1, 7)]
 pere_pcs_vars = [f'pere_pcs_{i}' for i in range(1, 7)]
 mere_etude_vars = [f'mere_etude_{i}' for i in range(1, 7)]
@@ -331,4 +349,3 @@ for model_name, model in models.items():
     y = model(x)
     dot = torchviz.make_dot(y, params=dict(model.named_parameters()))
     st.image(dot.render(f'model_graph_{model_name}', format='png'))
-
