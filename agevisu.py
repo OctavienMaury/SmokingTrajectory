@@ -1,3 +1,4 @@
+# The most comprehensive model predicts whether the individual smokes or not, as well as their age of smoking initiation and cessation.
 import pandas as pd
 import numpy as np
 import torch
@@ -11,18 +12,18 @@ import streamlit as st
 import streamlit.components.v1 as components
 import torchviz
 
-# Chargement des données
-data = pd.read_csv('C:\\Users\\Torvic\\Desktop\\deepleanring\\data_test2_cleaned3.csv')
 
-# Création des variables 'age_init' et 'age_cess'
+data = pd.read_csv('PATH\data.csv')
+
+# Create the variables'age_init' et 'age_cess'
 data['age_init'] = data.apply(lambda row: row['age'] - row['nbanfum'] if row['afume'] == 1 else np.nan, axis=1)
 data['age_cess'] = data.apply(lambda row: row['age'] - row['nbanfum'] if row['aarret'] > 0 else np.nan, axis=1)
 
-# Prétraitement des données
+
 data['sexe'] = data['sexe'].astype('category').cat.codes
 columns_to_drop = ['ben_n4', 'nind', 'pond_pers_total']
 
-# Application du One-Hot Encoding
+#  One-Hot Encoding
 encoder = OneHotEncoder(drop='first')
 columns_to_encode = ['mere_pcs', 'pere_pcs', 'mere_etude', 'pere_etude']
 
@@ -33,13 +34,13 @@ encoded_df = pd.DataFrame(encoded_data, columns=feature_labels)
 data = data.drop(columns=columns_to_encode + columns_to_drop)
 data = pd.concat([data, encoded_df], axis=1)
 
-# Mettre à jour columns_to_use après l'encodage
+# Update columns
 columns_to_use = [col for col in data.columns if col not in ['fume', 'age_init', 'age_cess', 'afume', 'nbanfum', 'aarret']]
 
-# Filtrer les lignes où 'age_init' ou 'age_cess' sont NaN
+
 data = data.dropna(subset=['age_init', 'age_cess'])
 
-# Normaliser les cibles
+
 age_init_mean = data['age_init'].mean()
 age_init_std = data['age_init'].std()
 data['age_init'] = (data['age_init'] - age_init_mean) / age_init_std
@@ -51,18 +52,18 @@ data['age_cess'] = (data['age_cess'] - age_cess_mean) / age_cess_std
 # Conversion des données en tenseurs pour PyTorch
 X = torch.tensor(data[columns_to_use].values.astype(np.float32))
 
-# Préparation des cibles
+
 y_fume = torch.tensor((data['fume'] > 2).astype(np.float32).values).unsqueeze(1)
 y_age_init = torch.tensor(data['age_init'].values.astype(np.float32)).unsqueeze(1)
 y_age_cess = torch.tensor(data['age_cess'].values.astype(np.float32)).unsqueeze(1)
 
-# Normalisation des données
+
 mean = X.mean(0, keepdim=True)
 std = X.std(0, keepdim=True)
 std[std == 0] = 1
 X = (X - mean) / std
 
-# Création des datasets
+
 class Donnees(Dataset):
     def __init__(self, features, labels):
         self.features = features
@@ -181,7 +182,7 @@ def evaluate_regression_model(model, test_loader):
     print(f'Average Test MSE Loss: {average_loss:.4f}, MAE: {mae:.4f}')
     return average_loss, mae
 
-# Entraînement des modèles
+# Training
 print("Training model for fume prediction...")
 train_model(model_fume, optimizer_fume, loss_fn_fume, train_loader_fume)
 print("Training model for age of initiation prediction...")
@@ -189,7 +190,7 @@ train_model(model_age_init, optimizer_age_init, loss_fn_reg, train_loader_age_in
 print("Training model for age of cessation prediction...")
 train_model(model_age_cess, optimizer_age_cess, loss_fn_reg, train_loader_age_cess)
 
-# Évaluation des modèles
+# Evaluate
 print("Model Fume:")
 evaluate_model(model_fume, loss_fn_fume, test_loader_fume, task='classification')
 print("Model Age Init:")
@@ -197,12 +198,12 @@ evaluate_regression_model(model_age_init, test_loader_age_init)
 print("Model Age Cess:")
 evaluate_regression_model(model_age_cess, test_loader_age_cess)
 
-# Sauvegarde des modèles
+# Save
 torch.save(model_fume.state_dict(), 'model_fume.pth')
 torch.save(model_age_init.state_dict(), 'model_age_init.pth')
 torch.save(model_age_cess.state_dict(), 'model_age_cess.pth')
 
-# Charger les modèles
+# Load
 model_fume.load_state_dict(torch.load('model_fume.pth'))
 model_age_init.load_state_dict(torch.load('model_age_init.pth'))
 model_age_cess.load_state_dict(torch.load('model_age_cess.pth'))
@@ -211,7 +212,7 @@ model_fume.eval()
 model_age_init.eval()
 model_age_cess.eval()
 
-# Prédictions sur le jeu de données complet
+# Predict
 full_loader = DataLoader(Donnees(X, y_fume), batch_size=60, shuffle=False)
 
 all_labels_fume, all_labels_age_init, all_labels_age_cess = [], [], []
@@ -230,17 +231,17 @@ with torch.no_grad():
         all_predictions_age_init.extend(predictions_age_init.tolist())
         all_predictions_age_cess.extend(predictions_age_cess.tolist())
 
-# Ajouter les prédictions aux données originales
+
 data['predicted_fume'] = [item[0] for item in all_predictions_fume]
 data['predicted_age_init'] = [item[0] for item in all_predictions_age_init]
 data['predicted_age_cess'] = [item[0] for item in all_predictions_age_cess]
 
-# Sauvegarder les résultats dans un fichier CSV
-data.to_csv('C:\\Users\\Torvic\\Desktop\\deepleanring\\Epredicted_data.csv', index=False)
+# save predicted data
+data.to_csv('PATH\predicted_data.csv', index=False)
 
 print("Les prédictions ont été sauvegardées avec succès.")
 
-# Fonction wrapper pour le modèle pour la conversion NumPy -> PyTorch tensor
+# Convert NumPy -> PyTorch tensor
 class ModelWrapper:
     def __init__(self, model):
         self.model = model
@@ -250,32 +251,28 @@ class ModelWrapper:
             x_tensor = torch.tensor(x, dtype=torch.float32)
             return self.model(x_tensor).detach().numpy().flatten()
 
-# Conversion des tenseurs en tableaux NumPy
 X_np = X.numpy()
 
-# Modèles à analyser
+
 models = {
     "model_fume": model_fume,
     "model_age_init": model_age_init,
     "model_age_cess": model_age_cess
 }
 
-# Fonction pour afficher les visualisations SHAP interactives
+# SHAP
 def st_shap(plot, height=None):
     shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
     components.html(shap_html, height=height)
 
-# Interface Streamlit
+# Streamlit
 st.title("Visualisation des SHAP values et des importances des caractéristiques pour 3 modèles")
 
-# Affichage des valeurs SHAP pour chaque modèle
 for model_name, model in models.items():
     st.subheader(f"SHAP Summary Plot pour {model_name}")
     
-    # Créer le wrapper du modèle
     model_wrapper = ModelWrapper(model)
     
-    # Calcul des valeurs SHAP
     background = X_np[np.random.choice(X_np.shape[0], 100, replace=False)]
     explainer = shap.KernelExplainer(model_wrapper, background)
     shap_values = explainer.shap_values(X_np)
@@ -289,12 +286,10 @@ for model_name, model in models.items():
     st.write(f"shap_values shape for {model_name}: {shap_values.shape}")
     st.write(f"X_np shape: {X_np.shape}")
     
-    # Graphique SHAP Summary Plot
     fig_summary, ax_summary = plt.subplots()
     shap.summary_plot(shap_values, X_np, feature_names=columns_to_use, show=False)
     st.pyplot(fig_summary)
     
-    # Calcul des scores d'importance des variables
     shap_values_mean = np.abs(shap_values).mean(axis=0)
     importance_df = pd.DataFrame(list(zip(columns_to_use, shap_values_mean)), columns=['Feature', 'SHAP Importance'])
     importance_df = importance_df.sort_values(by='SHAP Importance', ascending=False)
@@ -302,13 +297,11 @@ for model_name, model in models.items():
     st.write(f"\nScores d'importance des variables pour {model_name}:")
     st.write(importance_df)
     
-    # Graphique SHAP Force Plot interactif
     st.subheader(f"Graphique SHAP Force Plot interactif pour {model_name}")
     shap_values_sample = shap_values[:50]
     force_plot = shap.force_plot(explainer.expected_value, shap_values_sample, X_np[:50], feature_names=columns_to_use)
     st_shap(force_plot, 400)
     
-    # Graphique SHAP dependence plot pour 'mere_pcs_6' si la variable existe
     if 'mere_pcs_6' in columns_to_use:
         feature_idx = columns_to_use.index('mere_pcs_6')
         fig_dependence, ax_dependence = plt.subplots()
@@ -316,7 +309,6 @@ for model_name, model in models.items():
         st.pyplot(fig_dependence)
 
 #  SHAP KEY VARIABLES
-# Listes des variables encodées
 mere_pcs_vars = [f'mere_pcs_{i}' for i in range(1, 7)]
 pere_pcs_vars = [f'pere_pcs_{i}' for i in range(1, 7)]
 mere_etude_vars = [f'mere_etude_{i}' for i in range(1, 7)]
@@ -333,7 +325,6 @@ for var in all_vars:
             shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
             st.pyplot(fig_dependence)
 
-# Représentation graphique des modèles
 for model_name, model in models.items():
     st.subheader(f"Représentation graphique du modèle {model_name}")
     x = torch.randn(1, X.shape[1]).requires_grad_(True)
