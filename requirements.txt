@@ -6,3 +6,6 @@ shap
 matplotlib.pyplot 
 streamlit 
 torchviz
+sqlalchemy
+os
+dotenv
