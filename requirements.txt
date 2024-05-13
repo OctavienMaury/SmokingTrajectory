@@ -7,3 +7,4 @@ matplotlib
 streamlit 
 torchviz
 sqlalchemy
+psycopg2
