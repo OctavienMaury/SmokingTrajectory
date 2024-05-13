@@ -7,5 +7,4 @@ matplotlib
 streamlit 
 torchviz
 sqlalchemy
-os
 dotenv
