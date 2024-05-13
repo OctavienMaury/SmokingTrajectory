@@ -7,4 +7,3 @@ matplotlib
 streamlit 
 torchviz
 sqlalchemy
-dotenv
