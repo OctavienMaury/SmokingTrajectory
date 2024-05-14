@@ -52,7 +52,7 @@ def load_data_from_db(conn):
         st.error(f"Erreur lors du chargement des données: {e}")
         return pd.DataFrame()
 
-
+# Interface Streamlit
 st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
 
 # Test de connexion
@@ -63,7 +63,8 @@ if not data.empty:
     st.write(data.head())  # Affiche les premières lignes du DataFrame pour vérifier le chargement
     conn.close()
 else:
-    st.stop()  # Arrête l'exécution de l'application si les données ne peuvent pas être chargées.
+    st.stop()
+
 
 # Prétraitement des données
 data['age_init'] = data.apply(lambda row: row['age'] - row['nbanfum'] if row['afume'] == 1 else np.nan, axis=1)
