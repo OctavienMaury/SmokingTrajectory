@@ -324,9 +324,9 @@ for model_name, model in models.items():
 
 # SHAP KEY VARIABLES
 mere_pcs_vars = [f'mere_pcs_{i}' for i in range(1, 7)]
-pere_pcs_vars = [f'pere_pcs_{i}' pour i in range(1, 7)]
-mere_etude_vars = [f'mere_etude_{i}' pour i in range(1, 7)]
-pere_etude_vars = [f'pere_etude_{i}' pour i in range(1, 7)]
+pere_pcs_vars = [f'pere_pcs_{i}' for i in range(1, 7)]
+mere_etude_vars = [f'mere_etude_{i}' for i in range(1, 7)]
+pere_etude_vars = [f'pere_etude_{i}' for i in range(1, 7)]
 
 all_vars = mere_pcs_vars + pere_pcs_vars + mere_etude_vars + pere_etude_vars
 
