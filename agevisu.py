@@ -1,5 +1,6 @@
 import streamlit as st
-import psycopg2
+from sqlalchemy import create_engine
+import pandas as pd
 
 # Récupérer les secrets depuis Streamlit
 db_host = st.secrets["DB"]["DB_HOST"]
@@ -13,16 +14,12 @@ st.write(f"db_user: {db_user}")
 st.write(f"db_password: {db_password}")
 st.write(f"db_name: {db_name}")
 
-# Connexion à PostgreSQL
-st.write("Tentative de connexion à la base de données avec psycopg2...")
+# Connexion à PostgreSQL avec SQLAlchemy
+st.write("Tentative de connexion à la base de données avec SQLAlchemy...")
 try:
-    conn = psycopg2.connect(
-        host=db_host,
-        database=db_name,
-        user=db_user,
-        password=db_password
-    )
+    engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}')
+    connection = engine.connect()
     st.write("Connexion à la base de données réussie.")
-    conn.close()
+    connection.close()
 except Exception as e:
     st.error(f"Erreur de connexion à la base de données: {e}")
