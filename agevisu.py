@@ -17,12 +17,12 @@ import psycopg2
 import numpy as np
 
 # Récupérer les secrets depuis Streamlit
-gdrive_url = st.secrets["gdrive_url"]
+gdrive_url = st.secrets["gdrive_url"]["gdrive_url"]
 
 # Fonction pour télécharger et charger le fichier CSV depuis Google Drive
 @st.cache_data
-def load_csv_from_gdrive(url):
-    response = requests.get(url)
+def load_csv_from_gdrive(_url):
+    response = requests.get(_url)
     response.raise_for_status()  # Assurez-vous que la requête a réussi
     csv_file_path = 'data.csv'
     with open(csv_file_path, 'wb') as f:
@@ -324,9 +324,9 @@ for model_name, model in models.items():
 
 # SHAP KEY VARIABLES
 mere_pcs_vars = [f'mere_pcs_{i}' for i in range(1, 7)]
-pere_pcs_vars = [f'pere_pcs_{i}' for i in range(1, 7)]
-mere_etude_vars = [f'mere_etude_{i}' for i in range(1, 7)]
-pere_etude_vars = [f'pere_etude_{i}' for i in range(1, 7)]
+pere_pcs_vars = [f'pere_pcs_{i}' pour i in range(1, 7)]
+mere_etude_vars = [f'mere_etude_{i}' pour i in range(1, 7)]
+pere_etude_vars = [f'pere_etude_{i}' pour i in range(1, 7)]
 
 all_vars = mere_pcs_vars + pere_pcs_vars + mere_etude_vars + pere_etude_vars
 
