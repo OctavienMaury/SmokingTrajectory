@@ -139,7 +139,7 @@ optimizer_age_cess = optim.Adam(model_age_cess.parameters(), lr=0.0005)
 loss_fn_fume = nn.BCEWithLogitsLoss()
 loss_fn_reg = nn.MSELoss()
 
-def train_model(model, optimizer, loss_fn, train_loader, num_epochs=50):
+def train_model(model, optimizer, loss_fn, train_loader, num_epochs=100):
     for epoch in range(num_epochs):
         model.train()
         for features, labels in train_loader:
