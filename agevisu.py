@@ -2,7 +2,7 @@ import streamlit as st
 from sqlalchemy import create_engine
 
 # Récupérer les secrets depuis Streamlit
-db_host = st.secrets["DB"]["DB_HOST"]
+db_host = st.secrets["DB"]["DB_HOST"]  # Utilisez l'adresse IP locale ici
 db_user = st.secrets["DB"]["DB_USER"]
 db_password = st.secrets["DB"]["DB_PASSWORD"]
 db_name = st.secrets["DB"]["DB_NAME"]
