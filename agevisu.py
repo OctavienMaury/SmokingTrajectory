@@ -21,7 +21,7 @@ db_user = st.secrets["DB"]["DB_USER"]
 db_password = st.secrets["DB"]["DB_PASSWORD"]
 db_name = st.secrets["DB"]["DB_NAME"]
 
-# Connexion à PostgreSQL
+ Connexion à PostgreSQL
 def connect_to_db():
     st.write("Tentative de connexion à la base de données avec psycopg2...")
     try:
@@ -57,6 +57,10 @@ def load_data_from_db(conn):
         st.error(f"Erreur lors du chargement des données: {e}")
         return pd.DataFrame()
 
+# Test de connexion
+conn = connect_to_db()
+data = load_data_from_db(conn)
+
 # Interface Streamlit
 st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
 
@@ -65,10 +69,10 @@ engine = connect_to_db()
 data = load_data_from_db(engine)
 
 if not data.empty:
-    st.write(data.head())
+    st.write(data.head())  
+    conn.close()
 else:
     st.stop()
-
 
 
 # Prétraitement des données
