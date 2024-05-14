@@ -1,4 +1,3 @@
-# The most comprehensive model predicts whether the individual smokes or not, as well as their age of smoking initiation and cessation.
 import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine
@@ -13,7 +12,6 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 import streamlit.components.v1 as components
 import torchviz
 import psycopg2
-from sqlalchemy import create_engine
 
 # Récupérer les secrets depuis Streamlit
 db_host = st.secrets["DB"]["DB_HOST"]
@@ -53,20 +51,39 @@ try:
     connection.close()
 except Exception as e:
     st.error(f"Erreur de connexion à la base de données: {e}")
-    
+
+# Définir les fonctions de connexion et de chargement de données
+def connect_to_db():
+    try:
+        engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
+        return engine
+    except Exception as e:
+        st.error(f"Erreur de connexion à la base de données: {e}")
+        return None
+
+def load_data_from_db(engine):
+    if engine is None:
+        st.error("Impossible de se connecter à la base de données. Veuillez vérifier vos paramètres de connexion.")
+        return pd.DataFrame()
+    try:
+        query = "SELECT * FROM my_table"
+        data = pd.read_sql(query, engine)
+        return data
+    except Exception as e:
+        st.error(f"Erreur lors du chargement des données: {e}")
+        return pd.DataFrame()
+
 # Interface Streamlit
 st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
 
-# Test de connexion
-conn = connect_to_db()
-data = load_data_from_db(conn)
+# Test de connexion et chargement des données
+engine = connect_to_db()
+data = load_data_from_db(engine)
 
 if not data.empty:
     st.write(data.head())  # Affiche les premières lignes du DataFrame pour vérifier le chargement
-    conn.close()
 else:
     st.stop()
-
 
 # Prétraitement des données
 data['age_init'] = data.apply(lambda row: row['age'] - row['nbanfum'] if row['afume'] == 1 else np.nan, axis=1)
