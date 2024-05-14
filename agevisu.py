@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import streamlit.components.v1 as components
 import torchviz
+import psycopg2
 from sqlalchemy import create_engine
 
 # Récupérer les secrets depuis Streamlit
