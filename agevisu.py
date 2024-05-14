@@ -16,14 +16,14 @@ import torchviz
 import psycopg2
 import numpy as np
 
-# Récupérer les secrets depuis Streamlit
+#Streamlit Secrets
 gdrive_url = st.secrets["gdrive_url"]["gdrive_url"]
 
-# Fonction pour télécharger et charger le fichier CSV depuis Google Drive
+# CSV
 @st.cache_data
 def load_csv_from_gdrive(_url):
     response = requests.get(_url)
-    response.raise_for_status()  # Assurez-vous que la requête a réussi
+    response.raise_for_status()  
     csv_file_path = 'data.csv'
     with open(csv_file_path, 'wb') as f:
         f.write(response.content)
