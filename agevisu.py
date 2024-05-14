@@ -1,3 +1,4 @@
+# The most comprehensive model predicts whether the individual smokes or not, as well as their age of smoking initiation and cessation.
 import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine
@@ -11,41 +12,24 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import streamlit.components.v1 as components
 import torchviz
-import psycopg2
+import numpy as np
 
 # Récupérer les secrets depuis Streamlit
 db_host = st.secrets["DB"]["DB_HOST"]
-db_port = st.secrets["DB"]["DB_PORT"]
 db_user = st.secrets["DB"]["DB_USER"]
 db_password = st.secrets["DB"]["DB_PASSWORD"]
 db_name = st.secrets["DB"]["DB_NAME"]
 
 # Afficher les valeurs des variables pour vérifier leur exactitude
 st.write(f"db_host: {db_host}")
-st.write(f"db_port: {db_port}")
 st.write(f"db_user: {db_user}")
 st.write(f"db_password: {db_password}")
 st.write(f"db_name: {db_name}")
 
-# Connexion à PostgreSQL avec psycopg2 pour un test rapide
-st.write("Tentative de connexion à la base de données avec psycopg2...")
-try:
-    conn = psycopg2.connect(
-        host=db_host,
-        port=db_port,
-        database=db_name,
-        user=db_user,
-        password=db_password
-    )
-    st.write("Connexion à la base de données réussie.")
-    conn.close()
-except Exception as e:
-    st.error(f"Erreur de connexion à la base de données: {e}")
-
-# Connexion à PostgreSQL avec SQLAlchemy pour le test principal
+# Connexion à MySQL avec SQLAlchemy
 st.write("Tentative de connexion à la base de données avec SQLAlchemy...")
 try:
-    engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
+    engine = create_engine(f'mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}?charset=utf8')
     connection = engine.connect()
     st.write("Connexion à la base de données réussie.")
     connection.close()
@@ -55,7 +39,7 @@ except Exception as e:
 # Définir les fonctions de connexion et de chargement de données
 def connect_to_db():
     try:
-        engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
+        engine = create_engine(f'mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}?charset=utf8')
         return engine
     except Exception as e:
         st.error(f"Erreur de connexion à la base de données: {e}")
