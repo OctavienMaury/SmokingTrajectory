@@ -14,15 +14,19 @@ import streamlit.components.v1 as components
 import torchviz
 
 # Récupérer les secrets depuis Streamlit
-db_host = st.secrets["DB_HOST"] 
-db_user = st.secrets["DB_USER"]  
-db_password = st.secrets["DB_PASSWORD"]  
-db_name = st.secrets["DB_NAME"]  
+db_host = st.secrets["DB"]["DB_HOST"]
+db_user = st.secrets["DB"]["DB_USER"]
+db_password = st.secrets["DB"]["DB_PASSWORD"]
+db_name = st.secrets["DB"]["DB_NAME"]
 
 # Connexion à PostgreSQL
 def connect_to_db():
-    engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}')
-    return engine
+    try:
+        engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}')
+        return engine
+    except Exception as e:
+        st.error(f"Erreur de connexion à la base de données: {e}")
+        return None
 
 # Charger les données depuis PostgreSQL
 def load_data_from_db(engine):
@@ -40,18 +44,24 @@ def load_data_from_db(engine):
 # Interface Streamlit
 st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
 
+# Test de connexion
+engine = connect_to_db()
+if engine:
+    st.write("Connexion à la base de données réussie.")
+    data = load_data_from_db(engine)
+    if not data.empty:
+        st.write("Données chargées avec succès")
+    else:
+        st.stop()  # Arrête l'exécution de l'application si les données ne peuvent pas être chargées.
+else:
+    st.stop()  # Arrête l'exécution de l'application si la connexion échoue
+
 engine = connect_to_db()
 data = load_data_from_db(engine)
 
 if data.empty:
     st.stop() 
 
-# Interface Streamlit
-st.title("Modèle de Prédiction de Tabagisme")
-
-# Connexion à la base de données et chargement des données
-engine = connect_to_db()
-data = load_data_from_db(engine)
 
 # Prétraitement des données
 data['age_init'] = data.apply(lambda row: row['age'] - row['nbanfum'] if row['afume'] == 1 else np.nan, axis=1)
