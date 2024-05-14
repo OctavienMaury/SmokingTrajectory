@@ -17,41 +17,43 @@ from sqlalchemy import create_engine
 
 # Récupérer les secrets depuis Streamlit
 db_host = st.secrets["DB"]["DB_HOST"]
+db_port = st.secrets["DB"]["DB_PORT"]
 db_user = st.secrets["DB"]["DB_USER"]
 db_password = st.secrets["DB"]["DB_PASSWORD"]
 db_name = st.secrets["DB"]["DB_NAME"]
 
-# Connexion à PostgreSQL
-def connect_to_db():
-    st.write("Tentative de connexion à la base de données avec psycopg2...")
-    try:
-        conn = psycopg2.connect(
-            host=db_host,
-            database=db_name,
-            user=db_user,
-            password=db_password
-        )
-        st.write("Connexion à la base de données réussie.")
-        return conn
-    except Exception as e:
-        st.error(f"Erreur de connexion à la base de données: {e}")
-        return None
+# Afficher les valeurs des variables pour vérifier leur exactitude
+st.write(f"db_host: {db_host}")
+st.write(f"db_port: {db_port}")
+st.write(f"db_user: {db_user}")
+st.write(f"db_password: {db_password}")
+st.write(f"db_name: {db_name}")
 
-# Charger les données depuis PostgreSQL
-def load_data_from_db(conn):
-    st.write("Tentative de chargement des données depuis la base de données avec psycopg2...")
-    if conn is None:
-        st.error("Impossible de se connecter à la base de données. Veuillez vérifier vos paramètres de connexion.")
-        return pd.DataFrame()
-    try:
-        query = "SELECT * FROM my_table"
-        data = pd.read_sql_query(query, conn)
-        st.write("Données chargées avec succès.")
-        return data
-    except Exception as e:
-        st.error(f"Erreur lors du chargement des données: {e}")
-        return pd.DataFrame()
+# Connexion à PostgreSQL avec psycopg2 pour un test rapide
+st.write("Tentative de connexion à la base de données avec psycopg2...")
+try:
+    conn = psycopg2.connect(
+        host=db_host,
+        port=db_port,
+        database=db_name,
+        user=db_user,
+        password=db_password
+    )
+    st.write("Connexion à la base de données réussie.")
+    conn.close()
+except Exception as e:
+    st.error(f"Erreur de connexion à la base de données: {e}")
 
+# Connexion à PostgreSQL avec SQLAlchemy pour le test principal
+st.write("Tentative de connexion à la base de données avec SQLAlchemy...")
+try:
+    engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
+    connection = engine.connect()
+    st.write("Connexion à la base de données réussie.")
+    connection.close()
+except Exception as e:
+    st.error(f"Erreur de connexion à la base de données: {e}")
+    
 # Interface Streamlit
 st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
 
