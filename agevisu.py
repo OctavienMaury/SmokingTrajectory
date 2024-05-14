@@ -21,7 +21,7 @@ db_user = st.secrets["DB"]["DB_USER"]
 db_password = st.secrets["DB"]["DB_PASSWORD"]
 db_name = st.secrets["DB"]["DB_NAME"]
 
- Connexion à PostgreSQL
+# Connexion à PostgreSQL
 def connect_to_db():
     st.write("Tentative de connexion à la base de données avec psycopg2...")
     try:
@@ -44,36 +44,26 @@ def load_data_from_db(conn):
         st.error("Impossible de se connecter à la base de données. Veuillez vérifier vos paramètres de connexion.")
         return pd.DataFrame()
     try:
-        query = "SELECT * FROM data_test2_cleaned3"
-        cursor = conn.cursor()
-        cursor.execute(query)
-        data = cursor.fetchall()
-        columns = [desc[0] for desc in cursor.description]
-        df = pd.DataFrame(data, columns=columns)
-        cursor.close()
+        query = "SELECT * FROM my_table"
+        data = pd.read_sql_query(query, conn)
         st.write("Données chargées avec succès.")
-        return df
+        return data
     except Exception as e:
         st.error(f"Erreur lors du chargement des données: {e}")
         return pd.DataFrame()
+
+
+st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
 
 # Test de connexion
 conn = connect_to_db()
 data = load_data_from_db(conn)
 
-# Interface Streamlit
-st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
-
-# Test de connexion
-engine = connect_to_db()
-data = load_data_from_db(engine)
-
 if not data.empty:
-    st.write(data.head())  
+    st.write(data.head())  # Affiche les premières lignes du DataFrame pour vérifier le chargement
     conn.close()
 else:
-    st.stop()
-
+    st.stop()  # Arrête l'exécution de l'application si les données ne peuvent pas être chargées.
 
 # Prétraitement des données
 data['age_init'] = data.apply(lambda row: row['age'] - row['nbanfum'] if row['afume'] == 1 else np.nan, axis=1)
