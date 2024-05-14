@@ -14,10 +14,10 @@ import streamlit.components.v1 as components
 import torchviz
 
 # Récupérer les secrets depuis Streamlit
-db_host = st.secrets["DB"]["DB_HOST"]
-db_user = st.secrets["DB"]["DB_USER"]
-db_password = st.secrets["DB"]["DB_PASSWORD"]
-db_name = st.secrets["DB"]["DB_NAME"]
+db_host = st.secrets["DB_HOST"] 
+db_user = st.secrets["DB_USER"]  
+db_password = st.secrets["DB_PASSWORD"]  
+db_name = st.secrets["DB_NAME"]  
 
 # Connexion à PostgreSQL
 def connect_to_db():
