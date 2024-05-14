@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import streamlit.components.v1 as components
 import torchviz
+from sqlalchemy import create_engine
 
 # Récupérer les secrets depuis Streamlit
 db_host = st.secrets["DB"]["DB_HOST"]
@@ -21,8 +22,10 @@ db_name = st.secrets["DB"]["DB_NAME"]
 
 # Connexion à PostgreSQL
 def connect_to_db():
+    st.write("Tentative de connexion à la base de données...")
     try:
         engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}')
+        st.write("Connexion à la base de données réussie.")
         return engine
     except Exception as e:
         st.error(f"Erreur de connexion à la base de données: {e}")
@@ -30,37 +33,31 @@ def connect_to_db():
 
 # Charger les données depuis PostgreSQL
 def load_data_from_db(engine):
+    st.write("Tentative de chargement des données depuis la base de données...")
     if engine is None:
         st.error("Impossible de se connecter à la base de données. Veuillez vérifier vos paramètres de connexion.")
-        return pd.DataFrame()  # Retourne un DataFrame vide pour éviter des erreurs ultérieures.
+        return pd.DataFrame()
     try:
         query = "SELECT * FROM data_test2_cleaned3"
         data = pd.read_sql(query, engine)
+        st.write("Données chargées avec succès.")
         return data
     except Exception as e:
         st.error(f"Erreur lors du chargement des données: {e}")
-        return pd.DataFrame()  # Retourne un DataFrame vide pour éviter des erreurs ultérieures.
+        return pd.DataFrame()
 
 # Interface Streamlit
 st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
 
 # Test de connexion
 engine = connect_to_db()
-if engine:
-    st.write("Connexion à la base de données réussie.")
-    data = load_data_from_db(engine)
-    if not data.empty:
-        st.write("Données chargées avec succès")
-    else:
-        st.stop()  # Arrête l'exécution de l'application si les données ne peuvent pas être chargées.
-else:
-    st.stop()  # Arrête l'exécution de l'application si la connexion échoue
-
-engine = connect_to_db()
 data = load_data_from_db(engine)
 
-if data.empty:
-    st.stop() 
+if not data.empty:
+    st.write(data.head())
+else:
+    st.stop()
+
 
 
 # Prétraitement des données
