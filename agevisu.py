@@ -23,26 +23,36 @@ db_name = st.secrets["DB"]["DB_NAME"]
 
 # Connexion à PostgreSQL
 def connect_to_db():
-    st.write("Tentative de connexion à la base de données...")
+    st.write("Tentative de connexion à la base de données avec psycopg2...")
     try:
-        engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}')
+        conn = psycopg2.connect(
+            host=db_host,
+            database=db_name,
+            user=db_user,
+            password=db_password
+        )
         st.write("Connexion à la base de données réussie.")
-        return engine
+        return conn
     except Exception as e:
         st.error(f"Erreur de connexion à la base de données: {e}")
         return None
 
 # Charger les données depuis PostgreSQL
-def load_data_from_db(engine):
-    st.write("Tentative de chargement des données depuis la base de données...")
-    if engine is None:
+def load_data_from_db(conn):
+    st.write("Tentative de chargement des données depuis la base de données avec psycopg2...")
+    if conn is None:
         st.error("Impossible de se connecter à la base de données. Veuillez vérifier vos paramètres de connexion.")
         return pd.DataFrame()
     try:
         query = "SELECT * FROM data_test2_cleaned3"
-        data = pd.read_sql(query, engine)
+        cursor = conn.cursor()
+        cursor.execute(query)
+        data = cursor.fetchall()
+        columns = [desc[0] for desc in cursor.description]
+        df = pd.DataFrame(data, columns=columns)
+        cursor.close()
         st.write("Données chargées avec succès.")
-        return data
+        return df
     except Exception as e:
         st.error(f"Erreur lors du chargement des données: {e}")
         return pd.DataFrame()
