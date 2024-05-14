@@ -29,11 +29,10 @@ def load_csv_from_gdrive(_url):
         f.write(response.content)
     return pd.read_csv(csv_file_path)
 
-# Charger les données depuis Google Drive
-#data = load_csv_from_gdrive(gdrive_url)
+data = load_csv_from_gdrive(gdrive_url)
 
-# Afficher les premières lignes du dataframe
-st.write(data.head())
+#debogage
+#st.write(data.head())
 
 # Interface Streamlit
 st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
