@@ -8,3 +8,4 @@ streamlit
 torchviz
 sqlalchemy
 psycopg2-binary
+pymysql
