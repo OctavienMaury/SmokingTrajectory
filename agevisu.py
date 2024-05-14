@@ -13,6 +13,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 import streamlit.components.v1 as components
 import torchviz
 import numpy as np
+import pymysql
 
 # Récupérer les secrets depuis Streamlit
 db_host = st.secrets["DB"]["DB_HOST"]
