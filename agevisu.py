@@ -70,6 +70,8 @@ data['age_cess'] = (data['age_cess'] - age_cess_mean) / age_cess_std
 
 # Conversion des données en tenseurs pour PyTorch
 X = torch.tensor(data[columns_to_use].values.astype(np.float32))
+
+)
 y_fume = torch.tensor((data['fume'] > 2).astype(np.float32).values).unsqueeze(1)
 y_age_init = torch.tensor(data['age_init'].values.astype(np.float32)).unsqueeze(1)
 y_age_cess = torch.tensor(data['age_cess'].values.astype(np.float32)).unsqueeze(1)
@@ -214,46 +216,18 @@ print("Model Age Cess:")
 evaluate_regression_model(model_age_cess, test_loader_age_cess)
 
 # Save
-torch.save(model_fume.state_dict(), 'model_fume.pth')
-torch.save(model_age_init.state_dict(), 'model_age_init.pth')
-torch.save(model_age_cess.state_dict(), 'model_age_cess.pth')
+# torch.save(model_fume.state_dict(), 'model_fume.pth')
+# torch.save(model_age_init.state_dict(), 'model_age_init.pth')
+# torch.save(model_age_cess.state_dict(), 'model_age_cess.pth')
 
 # Load
-model_fume.load_state_dict(torch.load('model_fume.pth'))
-model_age_init.load_state_dict(torch.load('model_age_init.pth'))
-model_age_cess.load_state_dict(torch.load('model_age_cess.pth'))
+# model_fume.load_state_dict(torch.load('model_fume.pth'))
+# model_age_init.load_state_dict(torch.load('model_age_init.pth'))
+# model_age_cess.load_state_dict(torch.load('model_age_cess.pth'))
 
-model_fume.eval()
-model_age_init.eval()
-model_age_cess.eval()
-
-# Predict
-full_loader = DataLoader(Donnees(X, y_fume), batch_size=40, shuffle=False)
-
-all_labels_fume, all_labels_age_init, all_labels_age_cess = [], [], []
-all_predictions_fume, all_predictions_age_init, all_predictions_age_cess = [], [], []
-
-with torch.no_grad():
-    for features, labels in full_loader:
-        predictions_fume = model_fume(features)
-        predicted_labels_fume = (predictions_fume > 0.5).float()
-
-        predictions_age_init = model_age_init(features)
-        predictions_age_cess = model_age_cess(features)
-
-        all_labels_fume.extend(labels.tolist())
-        all_predictions_fume.extend(predicted_labels_fume.tolist())
-        all_predictions_age_init.extend(predictions_age_init.tolist())
-        all_predictions_age_cess.extend(predictions_age_cess.tolist())
-
-data['predicted_fume'] = [item[0] for item in all_predictions_fume]
-data['predicted_age_init'] = [item[0] for item in all_predictions_age_init]
-data['predicted_age_cess'] = [item[0] for item in all_predictions_age_cess]
-
-# Save predicted data
-#data.to_csv('predicted_data.csv', index=False)
-
-#print("Les prédictions ont été sauvegardées avec succès.")
+# model_fume.eval()
+# model_age_init.eval()
+# model_age_cess.eval()
 
 # Convert NumPy -> PyTorch tensor
 class ModelWrapper:
@@ -283,38 +257,38 @@ st.title("Visualisation des SHAP values et des importances des caractéristiques
 
 for model_name, model in models.items():
     st.subheader(f"SHAP Summary Plot pour {model_name}")
-    
+
     model_wrapper = ModelWrapper(model)
-    
+
     background = X_np[np.random.choice(X_np.shape[0], 100, replace=False)]
     explainer = shap.KernelExplainer(model_wrapper, background)
     shap_values = explainer.shap_values(X_np)
-    
+
     if isinstance(shap_values, list):
         shap_values = np.array(shap_values)
 
     if shap_values.ndim == 3:
         shap_values = shap_values[0]
-    
+
     st.write(f"shap_values shape for {model_name}: {shap_values.shape}")
     st.write(f"X_np shape: {X_np.shape}")
-    
+
     fig_summary, ax_summary = plt.subplots()
     shap.summary_plot(shap_values, X_np, feature_names=columns_to_use, show=False)
     st.pyplot(fig_summary)
-    
+
     shap_values_mean = np.abs(shap_values).mean(axis=0)
     importance_df = pd.DataFrame(list(zip(columns_to_use, shap_values_mean)), columns=['Feature', 'SHAP Importance'])
     importance_df = importance_df.sort_values(by='SHAP Importance', ascending=False)
-    
+
     st.write(f"\nScores d'importance des variables pour {model_name}:")
     st.write(importance_df)
-    
+
     st.subheader(f"Graphique SHAP Force Plot interactif pour {model_name}")
     shap_values_sample = shap_values[:50]
     force_plot = shap.force_plot(explainer.expected_value, shap_values_sample, X_np[:50], feature_names=columns_to_use)
     st_shap(force_plot, 400)
-    
+
     #if 'mere_pcs_6' in columns_to_use:
         #feature_idx = columns_to_use.index('mere_pcs_6')
         #fig_dependence, ax_dependence = plt.subplots()
