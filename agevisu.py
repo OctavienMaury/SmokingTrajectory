@@ -71,7 +71,6 @@ data['age_cess'] = (data['age_cess'] - age_cess_mean) / age_cess_std
 # Conversion des données en tenseurs pour PyTorch
 X = torch.tensor(data[columns_to_use].values.astype(np.float32))
 
-)
 y_fume = torch.tensor((data['fume'] > 2).astype(np.float32).values).unsqueeze(1)
 y_age_init = torch.tensor(data['age_init'].values.astype(np.float32)).unsqueeze(1)
 y_age_cess = torch.tensor(data['age_cess'].values.astype(np.float32)).unsqueeze(1)
