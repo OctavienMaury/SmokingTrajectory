@@ -251,9 +251,9 @@ data['predicted_age_init'] = [item[0] for item in all_predictions_age_init]
 data['predicted_age_cess'] = [item[0] for item in all_predictions_age_cess]
 
 # Save predicted data
-data.to_csv('predicted_data.csv', index=False)
+#data.to_csv('predicted_data.csv', index=False)
 
-print("Les prédictions ont été sauvegardées avec succès.")
+#print("Les prédictions ont été sauvegardées avec succès.")
 
 # Convert NumPy -> PyTorch tensor
 class ModelWrapper:
@@ -315,28 +315,28 @@ for model_name, model in models.items():
     force_plot = shap.force_plot(explainer.expected_value, shap_values_sample, X_np[:50], feature_names=columns_to_use)
     st_shap(force_plot, 400)
     
-    if 'mere_pcs_6' in columns_to_use:
-        feature_idx = columns_to_use.index('mere_pcs_6')
-        fig_dependence, ax_dependence = plt.subplots()
-        shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
-        st.pyplot(fig_dependence)
+    #if 'mere_pcs_6' in columns_to_use:
+        #feature_idx = columns_to_use.index('mere_pcs_6')
+        #fig_dependence, ax_dependence = plt.subplots()
+        #shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
+        #st.pyplot(fig_dependence)
 
 # SHAP KEY VARIABLES
-mere_pcs_vars = [f'mere_pcs_{i}' for i in range(1, 7)]
-pere_pcs_vars = [f'pere_pcs_{i}' for i in range(1, 7)]
-mere_etude_vars = [f'mere_etude_{i}' for i in range(1, 7)]
-pere_etude_vars = [f'pere_etude_{i}' for i in range(1, 7)]
+#mere_pcs_vars = [f'mere_pcs_{i}' for i in range(1, 7)]
+#pere_pcs_vars = [f'pere_pcs_{i}' for i in range(1, 7)]
+#mere_etude_vars = [f'mere_etude_{i}' for i in range(1, 7)]
+#pere_etude_vars = [f'pere_etude_{i}' for i in range(1, 7)]
 
-all_vars = mere_pcs_vars + pere_pcs_vars + mere_etude_vars + pere_etude_vars
+#all_vars = mere_pcs_vars + pere_pcs_vars + mere_etude_vars + pere_etude_vars
 
-for var in all_vars:
-    if var in columns_to_use:
-        feature_idx = columns_to_use.index(var)
-        for model_name, model in models.items():
-            st.subheader(f"SHAP Dependence Plot pour {model_name} - {var}")
-            fig_dependence, ax_dependence = plt.subplots()
-            shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
-            st.pyplot(fig_dependence)
+#for var in all_vars:
+    #if var in columns_to_use:
+        #feature_idx = columns_to_use.index(var)
+        #for model_name, model in models.items():
+            #st.subheader(f"SHAP Dependence Plot pour {model_name} - {var}")
+            #fig_dependence, ax_dependence = plt.subplots()
+            #shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
+            #st.pyplot(fig_dependence)
 
 for model_name, model in models.items():
     st.subheader(f"Représentation graphique du modèle {model_name}")
