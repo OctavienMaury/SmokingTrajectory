@@ -139,7 +139,7 @@ optimizer_age_cess = optim.Adam(model_age_cess.parameters(), lr=0.0005)
 loss_fn_fume = nn.BCEWithLogitsLoss()
 loss_fn_reg = nn.MSELoss()
 
-def train_model(model, optimizer, loss_fn, train_loader, num_epochs=100):
+def train_model(model, optimizer, loss_fn, train_loader, num_epochs=50):
     for epoch in range(num_epochs):
         model.train()
         for features, labels in train_loader:
@@ -228,7 +228,7 @@ model_age_init.eval()
 model_age_cess.eval()
 
 # Predict
-full_loader = DataLoader(Donnees(X, y_fume), batch_size=60, shuffle=False)
+full_loader = DataLoader(Donnees(X, y_fume), batch_size=40, shuffle=False)
 
 all_labels_fume, all_labels_age_init, all_labels_age_cess = [], [], []
 all_predictions_fume, all_predictions_age_init, all_predictions_age_cess = [], [], []
