@@ -48,7 +48,7 @@ if 'data' in locals():
 
     # One-Hot Encoding
     encoder = OneHotEncoder(drop='first')
-    columns_to_encode = ['mere_pcs', 'pere_pcs', 'mere_etude', 'pere_etude']
+    columns_to_encode = ['mere_pcs', 'pere_pcs', 'mere_etude', 'pere_etude', 'niveauvie']
 
     encoded_data = encoder.fit_transform(data[columns_to_encode]).toarray()
     feature_labels = encoder.get_feature_names_out()
