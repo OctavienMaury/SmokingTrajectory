@@ -62,9 +62,9 @@ The results of the Age-visu Model can be accessed from this website (https://smo
 
 To use this project, you can clone the repository and run the code in a Python environment. The code for each model is in a separate file, which are as follows:
 
-    Simplemodel.py
-    onhotvisu.py
-    agevisu.py
+-Simplemodel.py
+-onhotvisu.py
+-agevisu.py
 
 Note that running the code may take some time, especially for the Age-visu Model, so please be patient.
 
@@ -72,6 +72,6 @@ Note that running the code may take some time, especially for the Age-visu Model
 
 If you use this project in your research, please cite me as follows:
 
-    Name: Maury
-    First Name: Octavien
+-Name: Maury
+-First Name: Octavien
 
