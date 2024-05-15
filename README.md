@@ -64,7 +64,7 @@ To use this project, you can clone the repository and run the code in a Python e
 
 - Simplemodel.py
 - onhotvisu.py
--a gevisu.py
+- gevisu.py
 
 Note that running the code may take some time, especially for the Age-visu Model, so please be patient.
 
