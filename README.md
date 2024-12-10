@@ -49,14 +49,14 @@ We have implemented three different neural network models in this project, which
 
 1. **Simple Model**: This is the simplest model.
 2. **One-hot Model**: This model is a bit more complex than the simple model and includes one-hot encoding for the categorical variables. 
-3. 3. **Age-visu Model**: This is the most complex and performant model in this project. It includes three separate models, each with a visible layer for the age variable, which allows the model to learn the influence of age on the smoking trajectories. The three models are as follows:
+3. **Age-visu Model**: This is the most complex and performant model in this project. It includes three separate models, each with a visible layer for the age variable, which allows the model to learn the influence of age on the smoking trajectories. The three models are as follows:
 	* A model to predict whether the individual smokes or not, which achieves an accuracy of 90% on the test set.
 	* A model to predict the age of smoking initiation, which predicts the age within 0.5 years of the actual age.
 	* A model to predict the age of smoking cessation, which predicts the age within 0.5 years of the actual age.
 
 ## Results
 
-The results of the Age-visu Model can be accessed from this website (https://smokingtrajectory.streamlit.app/).The model achieves an accuracy of 94% on the test set for predicting whether an individual smokes or not, which is a significant improvement compared to the simple and one-hot models. The visible layer for the age variable allows the model to learn the influence of age on the smoking trajectories and provides insights into the smoking behavior of individuals in France.
+The results of the Age-visu Model can be accessed from this website (https://smokingtrajectory.streamlit.app/). The model achieves an accuracy of 94% on the test set for predicting whether an individual smokes or not, which is a significant improvement compared to the simple and one-hot models. The visible layer for the age variable allows the model to learn the influence of age on the smoking trajectories and provides insights into the smoking behavior of individuals in France.
 
 ## Usage
 
